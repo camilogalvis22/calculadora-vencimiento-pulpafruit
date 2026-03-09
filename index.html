@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulpafruit - Calculadora de Vencimiento</title>
+  <style>
+    :root {
+      --bg1: #eef2f7;
+      --bg2: #dfe7f1;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #4b5563;
+      --line: #d1d5db;
+      --soft: #f9fafb;
+      --primary: #111827;
+      --secondary: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 430px;
+      background: var(--card);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #6b7280;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .subtext {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .group {
+      margin-top: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      font-size: 16px;
+      background: #fff;
+    }
+
+    .result {
+      margin-top: 24px;
+      background: var(--soft);
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .result-title {
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #6b7280;
+    }
+
+    .result-line {
+      margin: 6px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .result-date {
+      margin: 14px 0 6px 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .secondary {
+      background: var(--secondary);
+      color: var(--text);
+    }
+
+    .primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button:hover { opacity: 0.95; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="eyebrow">Pulpafruit / utilidad</p>
+    <h1>Pulpafruit – Calculadora de vencimiento</h1>
+    <p class="subtext">
+      Selecciona la fecha base y la vida útil del producto para obtener la fecha de vencimiento.
+    </p>
+
+    <div class="group">
+      <label for="fechaProduccion">Fecha de producción</label>
+      <input type="date" id="fechaProduccion" />
+    </div>
+
+    <div class="group">
+      <label for="vidaUtil">Vida útil</label>
+      <select id="vidaUtil">
+        <option value="7">7 días</option>
+        <option value="10">10 días</option>
+        <option value="15">15 días</option>
+        <option value="20">20 días</option>
+        <option value="30">30 días</option>
+        <option value="45">45 días</option>
+        <option value="60">60 días</option>
+        <option value="75">75 días</option>
+        <option value="90">90 días</option>
+        <option value="120" selected>120 días</option>
+        <option value="150">150 días</option>
+        <option value="180">180 días</option>
+        <option value="270">270 días</option>
+        <option value="365">365 días</option>
+        <option value="custom">Personalizado</option>
+      </select>
+    </div>
+
+    <div class="group hidden" id="customGroup">
+      <label for="diasPersonalizados">Días personalizados</label>
+      <input type="number" id="diasPersonalizados" min="1" step="1" value="120" placeholder="Ej. 135" />
+    </div>
+
+    <div class="result">
+      <p class="result-title">Resultado</p>
+      <p class="result-line" id="fechaBaseTexto">Fecha base:</p>
+      <p class="result-line" id="vidaUtilTexto">Vida útil aplicada:</p>
+      <p class="result-date" id="fechaVencimientoTexto">--/--/----</p>
+      <p class="result-line" id="fechaLargaTexto">Vence el ...</p>
+    </div>
+
+    <div class="buttons">
+      <button class="secondary" id="restablecerBtn">Restablecer</button>
+      <button class="primary" id="copiarBtn">Copiar</button>
+    </div>
+  </div>
+
+  <script>
+    const fechaProduccion = document.getElementById('fechaProduccion');
+    const vidaUtil = document.getElementById('vidaUtil');
+    const customGroup = document.getElementById('customGroup');
+    const diasPersonalizados = document.getElementById('diasPersonalizados');
+
+    const fechaBaseTexto = document.getElementById('fechaBaseTexto');
+    const vidaUtilTexto = document.getElementById('vidaUtilTexto');
+    const fechaVencimientoTexto = document.getElementById('fechaVencimientoTexto');
+    const fechaLargaTexto = document.getElementById('fechaLargaTexto');
+
+    const restablecerBtn = document.getElementById('restablecerBtn');
+    const copiarBtn = document.getElementById('copiarBtn');
+
+    function formatoInputHoy() {
+      const hoy = new Date();
+      const año = hoy.getFullYear();
+      const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoy.getDate()).padStart(2, '0');
+      return `${año}-${mes}-${dia}`;
+    }
+
+    function obtenerDias() {
+      if (vidaUtil.value === 'custom') {
+        return Number(diasPersonalizados.value || 0);
+      }
+      return Number(vidaUtil.value);
+    }
+
+    function calcular() {
+      const fecha = fechaProduccion.value;
+      const dias = obtenerDias();
+
+      if (vidaUtil.value === 'custom') {
+        customGroup.classList.remove('hidden');
+      } else {
+        customGroup.classList.add('hidden');
+      }
+
+      if (!fecha || !dias || dias <= 0) {
+        fechaBaseTexto.textContent = 'Fecha base:';
+        vidaUtilTexto.textContent = 'Vida útil aplicada:';
+        fechaVencimientoTexto.textContent = '--/--/----';
+        fechaLargaTexto.textContent = 'Ingresa una fecha válida y una vida útil mayor a 0.';
+        return;
+      }
+
+      const base = new Date(`${fecha}T12:00:00`);
+      if (Number.isNaN(base.getTime())) {
+        fechaVencimientoTexto.textContent = '--/--/----';
+        fechaLargaTexto.textContent = 'Fecha inválida.';
+        return;
+      }
+
+      const vencimiento = new Date(base);
+      vencimiento.setDate(vencimiento.getDate() + dias);
+
+      const formatoVisible = new Intl.DateTimeFormat('es-CO', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      const formatoLargo = new Intl.DateTimeFormat('es-CO', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      fechaBaseTexto.textContent = `Fecha base: ${formatoVisible.format(base)}`;
+      vidaUtilTexto.textContent = `Vida útil aplicada: ${dias} días`;
+      fechaVencimientoTexto.textContent = formatoVisible.format(vencimiento);
+      fechaLargaTexto.textContent = `Vence el ${formatoLargo.format(vencimiento)}`;
+    }
+
+    async function copiarResultado() {
+      const texto = `${fechaBaseTexto.textContent} | ${vidaUtilTexto.textContent} | Vencimiento: ${fechaVencimientoTexto.textContent}`;
+      try {
+        await navigator.clipboard.writeText(texto);
+        copiarBtn.textContent = 'Copiado';
+        setTimeout(() => {
+          copiarBtn.textContent = 'Copiar';
+        }, 1500);
+      } catch {
+        alert('No fue posible copiar automáticamente.');
+      }
+    }
+
+    function restablecer() {
+      fechaProduccion.value = formatoInputHoy();
+      vidaUtil.value = '120';
+      diasPersonalizados.value = '120';
+      customGroup.classList.add('hidden');
+      calcular();
+    }
+
+    fechaProduccion.addEventListener('change', calcular);
+    vidaUtil.addEventListener('change', calcular);
+    diasPersonalizados.addEventListener('input', calcular);
+    copiarBtn.addEventListener('click', copiarResultado);
+    restablecerBtn.addEventListener('click', restablecer);
+
+    restablecer();
+  </script>
+</body>
+</html>
