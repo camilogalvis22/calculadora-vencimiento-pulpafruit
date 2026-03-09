@@ -334,14 +334,16 @@
       return `${año}-${mes}-${dia}`;
     }
 
-    function formatoAAMMDD(fechaStr) {
-      if (!fechaStr) return '';
-      const fecha = new Date(`${fechaStr}T12:00:00`);
-      if (Number.isNaN(fecha.getTime())) return '';
-      const año = String(fecha.getFullYear()).slice(-2);
-      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-      const dia = String(fecha.getDate()).padStart(2, '0');
-      return `${año}${mes}${dia}`;
+   function formatoLote(fechaStr) {
+  if (!fechaStr) return '';
+  const fecha = new Date(`${fechaStr}T12:00:00`);
+  if (Number.isNaN(fecha.getTime())) return '';
+
+  const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+  const dia = String(fecha.getDate()).padStart(2, '0');
+  const año = fecha.getFullYear();
+
+  return `${mes}${dia}${año}`;
     }
 
     function obtenerDiasProducto() {
