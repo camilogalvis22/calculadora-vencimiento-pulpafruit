@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulpafruit - Calculadora de Vencimiento</title>
+  <title>Pulpafruit - Rotulado y Vencimiento</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#111827" />
 
@@ -19,6 +19,7 @@
       --primary: #111827;
       --secondary: #e5e7eb;
       --accent: #2faa4a;
+      --danger: #b91c1c;
     }
 
     * { box-sizing: border-box; }
@@ -37,7 +38,7 @@
 
     .card {
       width: 100%;
-      max-width: 520px;
+      max-width: 620px;
       background: var(--card);
       border-radius: 22px;
       padding: 24px;
@@ -64,6 +65,17 @@
       font-size: 14px;
     }
 
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #166534;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -86,7 +98,7 @@
       color: #374151;
     }
 
-    input, select, textarea {
+    input, textarea {
       width: 100%;
       padding: 14px 16px;
       border-radius: 14px;
@@ -96,8 +108,12 @@
       font-family: inherit;
     }
 
+    input[readonly], textarea[readonly] {
+      background: #f9fafb;
+    }
+
     textarea {
-      min-height: 120px;
+      min-height: 140px;
       resize: vertical;
     }
 
@@ -107,15 +123,18 @@
       color: #6b7280;
     }
 
-    .badge {
-      display: inline-block;
+    .status {
       margin-top: 10px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #ecfdf3;
-      color: #166534;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
+    }
+
+    .status.ok {
+      color: #166534;
+    }
+
+    .status.error {
+      color: var(--danger);
     }
 
     .result {
@@ -188,7 +207,9 @@
       color: white;
     }
 
-    button:hover { opacity: 0.95; }
+    button:hover {
+      opacity: 0.95;
+    }
 
     @media (max-width: 640px) {
       .grid {
@@ -212,33 +233,34 @@
 <body>
   <div class="card">
     <p class="eyebrow">Pulpafruit / utilidad interna</p>
-    <h1>Pulpafruit – Calculadora de vencimiento</h1>
+    <h1>Pulpafruit – Rotulado y vencimiento</h1>
     <p class="subtext">
-      Herramienta rápida para producto, lote, vida útil y fecha de vencimiento.
+      Consulta por código de material, genera lote y calcula automáticamente la fecha de vencimiento.
     </p>
     <div class="badge">Uso interno</div>
 
     <div class="grid">
-      <div class="group full">
-        <label for="producto">Producto</label>
-        <select id="producto">
-          <option value="">Selecciona un producto</option>
-          <option value="Compota Manzana" data-dias="120">Compota Manzana</option>
-          <option value="Compota Pera" data-dias="120">Compota Pera</option>
-          <option value="Compota Mango" data-dias="120">Compota Mango</option>
-          <option value="Compota Banano" data-dias="90">Compota Banano</option>
-          <option value="Pulpa Fresa" data-dias="365">Pulpa Fresa</option>
-          <option value="Pulpa Mango" data-dias="365">Pulpa Mango</option>
-          <option value="Pulpa Mora" data-dias="365">Pulpa Mora</option>
-          <option value="Pulpa Guanábana" data-dias="365">Pulpa Guanábana</option>
-          <option value="Otro" data-dias="">Otro</option>
-        </select>
-        <div class="small-note">Puedes editar esta lista luego directamente en el HTML.</div>
+      <div class="group">
+        <label for="codigoMaterial">Código de material</label>
+        <input type="text" id="codigoMaterial" maxlength="6" placeholder="Ej. 120124" />
+        <div class="small-note">Ingresa 6 dígitos del código del producto.</div>
       </div>
 
       <div class="group">
-        <label for="lote">Lote</label>
-        <input type="text" id="lote" placeholder="Ej. 03092026A" />
+        <label for="fechaFabricacion">Fecha de fabricación</label>
+        <input type="date" id="fechaFabricacion" />
+      </div>
+
+      <div class="group full">
+        <label for="nombreMaterial">Material / descripción</label>
+        <input type="text" id="nombreMaterial" readonly />
+        <div class="status" id="estadoMaterial">Esperando código de material.</div>
+      </div>
+
+      <div class="group">
+        <label for="vidaUtil">Vida útil (días)</label>
+        <input type="number" id="vidaUtil" readonly />
+        <div class="small-note">Se carga automáticamente según el código.</div>
       </div>
 
       <div class="group">
@@ -247,82 +269,92 @@
       </div>
 
       <div class="group">
-        <label for="fechaProduccion">Fecha de producción</label>
-        <input type="date" id="fechaProduccion" />
+        <label for="loteGenerado">Lote generado</label>
+        <input type="text" id="loteGenerado" readonly />
+        <div class="small-note">Formato: CCCCCCMMDDAA</div>
       </div>
 
       <div class="group">
-        <label for="modoVidaUtil">Modo de vida útil</label>
-        <select id="modoVidaUtil">
-          <option value="auto" selected>Automática por producto</option>
-          <option value="manual">Manual</option>
-        </select>
-      </div>
-
-      <div class="group">
-        <label for="vidaUtil">Vida útil (días)</label>
-        <input type="number" id="vidaUtil" min="1" step="1" value="120" />
-        <div class="small-note" id="ayudaVidaUtil">Se toma automáticamente del producto seleccionado.</div>
-      </div>
-
-      <div class="group">
-        <label for="fechaLote">Fecha de lote (opcional)</label>
-        <input type="date" id="fechaLote" />
-      </div>
-
-      <div class="group">
-        <label for="codigoLoteAutomatico">Lote sugerido por fecha</label>
-        <input type="text" id="codigoLoteAutomatico" readonly />
-        <div class="small-note">Formato sugerido: MMDDAAAA</div>
+        <label for="fechaVencimientoCampo">Fecha de vencimiento</label>
+        <input type="text" id="fechaVencimientoCampo" readonly />
+        <div class="small-note">Calculada automáticamente.</div>
       </div>
     </div>
 
     <div class="result">
       <p class="result-title">Resultado</p>
-      <p class="result-line" id="productoTexto">Producto:</p>
+      <p class="result-line" id="codigoTexto">Código:</p>
+      <p class="result-line" id="productoTexto">Material:</p>
+      <p class="result-line" id="vidaUtilTexto">Vida útil:</p>
       <p class="result-line" id="loteTexto">Lote:</p>
+      <p class="result-line" id="fabricacionTexto">Fecha de fabricación:</p>
       <p class="result-line" id="responsableTexto">Responsable:</p>
-      <p class="result-line" id="fechaBaseTexto">Fecha base:</p>
-      <p class="result-line" id="vidaUtilTexto">Vida útil aplicada:</p>
       <p class="result-date" id="fechaVencimientoTexto">--/--/----</p>
       <p class="result-line" id="fechaLargaTexto">Vence el ...</p>
 
       <div class="copy-box">
-        <label for="textoEtiqueta">Texto listo para copiar</label>
-        <textarea id="textoEtiqueta" readonly></textarea>
+        <label for="textoRotulado">Texto listo para copiar</label>
+        <textarea id="textoRotulado" readonly></textarea>
       </div>
     </div>
 
     <div class="buttons">
       <button class="secondary" id="restablecerBtn">Restablecer</button>
-      <button class="primary" id="copiarBtn">Copiar resultado</button>
-      <button class="success" id="copiarEtiquetaBtn">Copiar formato etiqueta</button>
+      <button class="primary" id="copiarResultadoBtn">Copiar resultado</button>
+      <button class="success" id="copiarRotuloBtn">Copiar rotulado</button>
     </div>
   </div>
 
   <script>
-    const producto = document.getElementById('producto');
-    const lote = document.getElementById('lote');
-    const responsable = document.getElementById('responsable');
-    const fechaProduccion = document.getElementById('fechaProduccion');
-    const modoVidaUtil = document.getElementById('modoVidaUtil');
-    const vidaUtil = document.getElementById('vidaUtil');
-    const fechaLote = document.getElementById('fechaLote');
-    const codigoLoteAutomatico = document.getElementById('codigoLoteAutomatico');
-    const ayudaVidaUtil = document.getElementById('ayudaVidaUtil');
+    const materiales = {
+      "120124": {
+        nombre: "Compota Manzana 90 g",
+        vidaUtil: 120
+      },
+      "120125": {
+        nombre: "Compota Pera 90 g",
+        vidaUtil: 120
+      },
+      "120126": {
+        nombre: "Compota Mango 90 g",
+        vidaUtil: 120
+      },
+      "120127": {
+        nombre: "Compota Banano 90 g",
+        vidaUtil: 90
+      },
+      "220310": {
+        nombre: "Pulpa Mango 500 g",
+        vidaUtil: 365
+      },
+      "220311": {
+        nombre: "Pulpa Fresa 500 g",
+        vidaUtil: 365
+      }
+    };
 
+    const codigoMaterial = document.getElementById('codigoMaterial');
+    const fechaFabricacion = document.getElementById('fechaFabricacion');
+    const nombreMaterial = document.getElementById('nombreMaterial');
+    const vidaUtil = document.getElementById('vidaUtil');
+    const responsable = document.getElementById('responsable');
+    const loteGenerado = document.getElementById('loteGenerado');
+    const fechaVencimientoCampo = document.getElementById('fechaVencimientoCampo');
+    const estadoMaterial = document.getElementById('estadoMaterial');
+
+    const codigoTexto = document.getElementById('codigoTexto');
     const productoTexto = document.getElementById('productoTexto');
-    const loteTexto = document.getElementById('loteTexto');
-    const responsableTexto = document.getElementById('responsableTexto');
-    const fechaBaseTexto = document.getElementById('fechaBaseTexto');
     const vidaUtilTexto = document.getElementById('vidaUtilTexto');
+    const loteTexto = document.getElementById('loteTexto');
+    const fabricacionTexto = document.getElementById('fabricacionTexto');
+    const responsableTexto = document.getElementById('responsableTexto');
     const fechaVencimientoTexto = document.getElementById('fechaVencimientoTexto');
     const fechaLargaTexto = document.getElementById('fechaLargaTexto');
-    const textoEtiqueta = document.getElementById('textoEtiqueta');
+    const textoRotulado = document.getElementById('textoRotulado');
 
     const restablecerBtn = document.getElementById('restablecerBtn');
-    const copiarBtn = document.getElementById('copiarBtn');
-    const copiarEtiquetaBtn = document.getElementById('copiarEtiquetaBtn');
+    const copiarResultadoBtn = document.getElementById('copiarResultadoBtn');
+    const copiarRotuloBtn = document.getElementById('copiarRotuloBtn');
 
     function formatoInputHoy() {
       const hoy = new Date();
@@ -332,72 +364,78 @@
       return `${año}-${mes}-${dia}`;
     }
 
-    function formatoLote(fechaStr) {
+    function limpiarCodigo(valor) {
+      return valor.replace(/\D/g, '').slice(0, 6);
+    }
+
+    function formatoMMDDYY(fechaStr) {
       if (!fechaStr) return '';
       const fecha = new Date(`${fechaStr}T12:00:00`);
       if (Number.isNaN(fecha.getTime())) return '';
 
       const mes = String(fecha.getMonth() + 1).padStart(2, '0');
       const dia = String(fecha.getDate()).padStart(2, '0');
-      const año = fecha.getFullYear();
+      const año = String(fecha.getFullYear()).slice(-2);
 
       return `${mes}${dia}${año}`;
     }
 
-    function obtenerDiasProducto() {
-      const seleccion = producto.options[producto.selectedIndex];
-      return Number(seleccion?.dataset?.dias || 0);
+    function buscarMaterial(codigo) {
+      return materiales[codigo] || null;
     }
 
-    function sincronizarVidaUtil() {
-      const diasProducto = obtenerDiasProducto();
+    function actualizarMaterial() {
+      const codigo = limpiarCodigo(codigoMaterial.value);
+      codigoMaterial.value = codigo;
 
-      if (modoVidaUtil.value === 'auto') {
-        if (diasProducto > 0) {
-          vidaUtil.value = diasProducto;
-          ayudaVidaUtil.textContent = `Vida útil automática según producto: ${diasProducto} días.`;
-        } else {
-          ayudaVidaUtil.textContent = 'Este producto no tiene vida útil automática definida. Ingresa una manual.';
-        }
+      const material = buscarMaterial(codigo);
+
+      if (material) {
+        nombreMaterial.value = material.nombre;
+        vidaUtil.value = material.vidaUtil;
+        estadoMaterial.textContent = 'Código encontrado.';
+        estadoMaterial.className = 'status ok';
       } else {
-        ayudaVidaUtil.textContent = 'Modo manual activo. Puedes escribir la vida útil requerida.';
+        nombreMaterial.value = '';
+        vidaUtil.value = '';
+        if (codigo.length === 0) {
+          estadoMaterial.textContent = 'Esperando código de material.';
+          estadoMaterial.className = 'status';
+        } else {
+          estadoMaterial.textContent = 'Código no encontrado en la matriz.';
+          estadoMaterial.className = 'status error';
+        }
       }
     }
 
     function calcular() {
-      sincronizarVidaUtil();
+      actualizarMaterial();
 
-      const productoValor = producto.value || '';
-      const loteValor = lote.value.trim();
+      const codigo = limpiarCodigo(codigoMaterial.value);
+      const material = buscarMaterial(codigo);
+      const fechaFab = fechaFabricacion.value;
       const responsableValor = responsable.value.trim();
-      const fechaBase = fechaProduccion.value;
-      const fechaLoteValor = fechaLote.value || fechaBase;
-      const dias = Number(vidaUtil.value || 0);
 
-      codigoLoteAutomatico.value = formatoLote(fechaLoteValor);
+      codigoTexto.textContent = `Código: ${codigo || '-'}`;
+      productoTexto.textContent = `Material: ${material?.nombre || '-'}`;
+      vidaUtilTexto.textContent = `Vida útil: ${material?.vidaUtil ? material.vidaUtil + ' días' : '-'}`;
+      loteTexto.textContent = 'Lote: -';
+      fabricacionTexto.textContent = 'Fecha de fabricación: -';
+      responsableTexto.textContent = `Responsable: ${responsableValor || '-'}`;
+      fechaVencimientoTexto.textContent = '--/--/----';
+      fechaLargaTexto.textContent = 'Completa el código y la fecha de fabricación.';
+      loteGenerado.value = '';
+      fechaVencimientoCampo.value = '';
+      textoRotulado.value = '';
 
-      if (!fechaBase || !dias || dias <= 0) {
-        productoTexto.textContent = `Producto: ${productoValor || '-'}`;
-        loteTexto.textContent = `Lote: ${loteValor || codigoLoteAutomatico.value || '-'}`;
-        responsableTexto.textContent = `Responsable: ${responsableValor || '-'}`;
-        fechaBaseTexto.textContent = 'Fecha base:';
-        vidaUtilTexto.textContent = 'Vida útil aplicada:';
-        fechaVencimientoTexto.textContent = '--/--/----';
-        fechaLargaTexto.textContent = 'Ingresa una fecha válida y una vida útil mayor a 0.';
-        textoEtiqueta.value = '';
-        return;
-      }
+      if (!material || !fechaFab) return;
 
-      const base = new Date(`${fechaBase}T12:00:00`);
-      if (Number.isNaN(base.getTime())) {
-        fechaVencimientoTexto.textContent = '--/--/----';
-        fechaLargaTexto.textContent = 'Fecha inválida.';
-        textoEtiqueta.value = '';
-        return;
-      }
+      const base = new Date(`${fechaFab}T12:00:00`);
+      if (Number.isNaN(base.getTime())) return;
 
+      const lote = `${codigo}${formatoMMDDYY(fechaFab)}`;
       const vencimiento = new Date(base);
-      vencimiento.setDate(vencimiento.getDate() + dias);
+      vencimiento.setDate(vencimiento.getDate() + Number(material.vidaUtil));
 
       const formatoVisible = new Intl.DateTimeFormat('es-CO', {
         day: '2-digit',
@@ -411,23 +449,26 @@
         year: 'numeric'
       });
 
-      const loteFinal = loteValor || codigoLoteAutomatico.value || '-';
+      loteGenerado.value = lote;
+      fechaVencimientoCampo.value = formatoVisible.format(vencimiento);
 
-      productoTexto.textContent = `Producto: ${productoValor || '-'}`;
-      loteTexto.textContent = `Lote: ${loteFinal}`;
+      codigoTexto.textContent = `Código: ${codigo}`;
+      productoTexto.textContent = `Material: ${material.nombre}`;
+      vidaUtilTexto.textContent = `Vida útil: ${material.vidaUtil} días`;
+      loteTexto.textContent = `Lote: ${lote}`;
+      fabricacionTexto.textContent = `Fecha de fabricación: ${formatoVisible.format(base)}`;
       responsableTexto.textContent = `Responsable: ${responsableValor || '-'}`;
-      fechaBaseTexto.textContent = `Fecha de producción: ${formatoVisible.format(base)}`;
-      vidaUtilTexto.textContent = `Vida útil aplicada: ${dias} días`;
       fechaVencimientoTexto.textContent = formatoVisible.format(vencimiento);
       fechaLargaTexto.textContent = `Vence el ${formatoLargo.format(vencimiento)}`;
 
-      textoEtiqueta.value =
-`Producto: ${productoValor || '-'}
-Lote: ${loteFinal}
-Responsable: ${responsableValor || '-'}
-Fecha de producción: ${formatoVisible.format(base)}
-Vida útil: ${dias} días
-Fecha de vencimiento: ${formatoVisible.format(vencimiento)}`;
+      textoRotulado.value =
+`Código material: ${codigo}
+Material: ${material.nombre}
+Lote: ${lote}
+Fecha de fabricación: ${formatoVisible.format(base)}
+Vida útil: ${material.vidaUtil} días
+Fecha de vencimiento: ${formatoVisible.format(vencimiento)}
+Responsable: ${responsableValor || '-'}`;
     }
 
     async function copiarTexto(texto, boton) {
@@ -435,10 +476,10 @@ Fecha de vencimiento: ${formatoVisible.format(vencimiento)}`;
 
       try {
         await navigator.clipboard.writeText(texto);
-        const textoOriginal = boton.textContent;
+        const original = boton.textContent;
         boton.textContent = 'Copiado';
         setTimeout(() => {
-          boton.textContent = textoOriginal;
+          boton.textContent = original;
         }, 1500);
       } catch {
         alert('No fue posible copiar automáticamente.');
@@ -446,32 +487,30 @@ Fecha de vencimiento: ${formatoVisible.format(vencimiento)}`;
     }
 
     function restablecer() {
-      fechaProduccion.value = formatoInputHoy();
-      fechaLote.value = formatoInputHoy();
-      producto.value = '';
-      lote.value = '';
+      codigoMaterial.value = '';
+      fechaFabricacion.value = formatoInputHoy();
+      nombreMaterial.value = '';
+      vidaUtil.value = '';
       responsable.value = '';
-      modoVidaUtil.value = 'auto';
-      vidaUtil.value = '120';
-      codigoLoteAutomatico.value = '';
+      loteGenerado.value = '';
+      fechaVencimientoCampo.value = '';
+      textoRotulado.value = '';
+      estadoMaterial.textContent = 'Esperando código de material.';
+      estadoMaterial.className = 'status';
       calcular();
     }
 
-    producto.addEventListener('change', calcular);
-    lote.addEventListener('input', calcular);
+    codigoMaterial.addEventListener('input', calcular);
+    fechaFabricacion.addEventListener('change', calcular);
     responsable.addEventListener('input', calcular);
-    fechaProduccion.addEventListener('change', calcular);
-    fechaLote.addEventListener('change', calcular);
-    modoVidaUtil.addEventListener('change', calcular);
-    vidaUtil.addEventListener('input', calcular);
 
-    copiarBtn.addEventListener('click', () => {
-      const texto = `${fechaBaseTexto.textContent} | ${vidaUtilTexto.textContent} | Vencimiento: ${fechaVencimientoTexto.textContent}`;
-      copiarTexto(texto, copiarBtn);
+    copiarResultadoBtn.addEventListener('click', () => {
+      const texto = `${codigoTexto.textContent} | ${productoTexto.textContent} | ${loteTexto.textContent} | FV: ${fechaVencimientoTexto.textContent}`;
+      copiarTexto(texto, copiarResultadoBtn);
     });
 
-    copiarEtiquetaBtn.addEventListener('click', () => {
-      copiarTexto(textoEtiqueta.value, copiarEtiquetaBtn);
+    copiarRotuloBtn.addEventListener('click', () => {
+      copiarTexto(textoRotulado.value, copiarRotuloBtn);
     });
 
     if ('serviceWorker' in navigator) {
