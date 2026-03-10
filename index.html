@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pulpafruit - Rotulado y vencimiento</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root {
+      --bg: #e9eef5;
+      --card: #ffffff;
+      --soft: #f8fafc;
+      --line: #dbe3ee;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #0f172a;
+      --primary-2: #1e293b;
+      --accent: #15803d;
+      --accent-soft: #ecfdf5;
+      --warn: #b91c1c;
+      --warn-soft: #fef2f2;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f2f5fa 0%, #e5ebf3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.7);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 24px;
+      background: linear-gradient(135deg, #111827 0%, #0f172a 65%, #1e293b 100%);
+      color: #fff;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: 14px;
+      line-height: 1.45;
+      max-width: 760px;
+    }
+
+    .hero-badges {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #fff;
+    }
+
+    .body {
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .section {
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 7px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid #cfd8e3;
+      background: #fff;
+      color: var(--text);
+      padding: 13px 14px;
+      min-height: 50px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    input[readonly], textarea[readonly] {
+      background: #f8fafc;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .small-note {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .status {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .status.ok {
+      background: var(--accent-soft);
+      color: #166534;
+      border-style: solid;
+      border-color: #bbf7d0;
+    }
+
+    .status.error {
+      background: var(--warn-soft);
+      color: var(--warn);
+      border-style: solid;
+      border-color: #fecaca;
+    }
+
+    .hidden { display: none !important; }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      max-height: 280px;
+      overflow: auto;
+      background: #fff;
+      border: 1px solid #d6deea;
+      border-radius: 16px;
+      box-shadow: 0 18px 30px rgba(15,23,42,.12);
+      z-index: 30;
+      display: none;
+    }
+
+    .search-results.open { display: block; }
+
+    .result-item {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      text-align: left;
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .result-item:last-child { border-bottom: 0; }
+    .result-item:hover, .result-item:focus-visible {
+      background: #f8fafc;
+      outline: none;
+    }
+
+    .result-code {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: .08em;
+    }
+
+    .result-name {
+      display: block;
+      margin-top: 4px;
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-line {
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .date-big {
+      margin: 6px 0 0;
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+      color: #0f172a;
+    }
+
+    .label-preview {
+      background: white;
+      border: 2px solid #0f172a;
+      border-radius: 18px;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .label-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 10px;
+    }
+
+    .label-brand {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .label-tag {
+      font-size: 12px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .label-name {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .label-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .label-cell {
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-height: 74px;
+    }
+
+    .label-k {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .label-v {
+      display: block;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    button {
+      min-height: 52px;
+      border-radius: 14px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+      padding: 12px 14px;
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: #e2e8f0; color: #0f172a; }
+    .btn-success { background: #15803d; color: white; }
+    .btn-light { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; }
+
+    .footer-note {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 780px) {
+      body { padding: 12px; }
+      .hero { padding: 20px; }
+      .body { padding: 14px; }
+      .grid, .buttons, .label-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 27px; }
+      .date-big { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="hero">
+        <p class="eyebrow">Pulpafruit · herramienta interna</p>
+        <h1>Rotulado y cálculo de vencimiento</h1>
+        <p>App para inspectores de calidad en planta. Calcula lote y fecha de vencimiento con precisión por días o por meses calendario, respetando años bisiestos y fin de mes.</p>
+        <div class="hero-badges">
+          <span class="badge" id="badgeMateriales">Base: cargando...</span>
+          <span class="badge">PWA / uso móvil</span>
+          <span class="badge">Lote automático</span>
+        </div>
+      </div>
+
+      <div class="body">
+        <section class="section">
+          <p class="section-title">Configuración</p>
+          <div class="grid">
+            <div>
+              <label for="modoRegistro">Modo de registro</label>
+              <select id="modoRegistro">
+                <option value="registrado" selected>Código registrado</option>
+                <option value="manual">Manual / ensayo</option>
+              </select>
+              <div class="small-note">En código registrado, la vida útil se toma desde <code>materiales.js</code>.</div>
+            </div>
+            <div>
+              <label for="responsableComun">Responsable</label>
+              <input type="text" id="responsableComun" placeholder="Nombre o iniciales" autocomplete="off" />
+              <div class="small-note">Se usa tanto para resultado como para etiqueta.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="bloqueRegistrado">
+          <p class="section-title">Código registrado</p>
+          <div class="grid">
+            <div class="full search-wrap">
+              <label for="busquedaMaterial">Buscar por código o nombre</label>
+              <input type="text" id="busquedaMaterial" placeholder="Ej. 570163 o PERA PEPINO" autocomplete="off" />
+              <div class="small-note">Puedes escribir parte del código o del nombre. Toca una sugerencia para completar.</div>
+              <div class="search-results" id="searchResults" role="listbox" aria-label="Resultados de búsqueda"></div>
+            </div>
+            <div>
+              <label for="codigoMaterial">Código de material</label>
+              <input type="text" id="codigoMaterial" maxlength="18" placeholder="Ej. 570163 o 02ASE001" autocomplete="off" />
+            </div>
+            <div>
+              <label for="fechaFabricacion">Fecha de fabricación</label>
+              <input type="date" id="fechaFabricacion" />
+            </div>
+            <div class="full">
+              <label for="nombreMaterial">Material / descripción</label>
+              <input type="text" id="nombreMaterial" readonly />
+              <div class="status" id="estadoMaterial">Esperando búsqueda o código de material.</div>
+            </div>
+            <div>
+              <label for="vidaUtilRegistrada">Vida útil</label>
+              <input type="text" id="vidaUtilRegistrada" readonly />
+            </div>
+            <div>
+              <label for="loteGenerado">Lote generado</label>
+              <input type="text" id="loteGenerado" readonly />
+              <div class="small-note">Formato: código + MMDDAA</div>
+            </div>
+            <div>
+              <label for="fechaVencimientoCampo">Fecha de vencimiento</label>
+              <input type="text" id="fechaVencimientoCampo" readonly />
+            </div>
+            <div>
+              <label for="unidadInfo">Tipo de cálculo</label>
+              <input type="text" id="unidadInfo" readonly />
+            </div>
+          </div>
+        </section>
+
+        <section class="section hidden" id="bloqueManual">
+          <p class="section-title">Manual / ensayo</p>
+          <div class="grid">
+            <div>
+              <label for="codigoManual">Código manual</label>
+              <input type="text" id="codigoManual" maxlength="18" placeholder="Ej. ENS001" autocomplete="off" />
+            </div>
+            <div>
+              <label for="fechaFabricacionManual">Fecha de fabricación</label>
+              <input type="date" id="fechaFabricacionManual" />
+            </div>
+            <div class="full">
+              <label for="nombreManual">Nombre del producto / ensayo</label>
+              <input type="text" id="nombreManual" placeholder="Ej. Ensayo bebida mora 1" autocomplete="off" />
+            </div>
+            <div>
+              <label for="vidaUtilManual">Vida útil</label>
+              <input type="number" id="vidaUtilManual" min="1" step="1" placeholder="Ej. 30" />
+            </div>
+            <div>
+              <label for="unidadVidaManual">Unidad de vida útil</label>
+              <select id="unidadVidaManual">
+                <option value="dias" selected>Días</option>
+                <option value="meses">Meses calendario</option>
+              </select>
+            </div>
+            <div>
+              <label for="loteGeneradoManual">Lote generado</label>
+              <input type="text" id="loteGeneradoManual" readonly />
+            </div>
+            <div>
+              <label for="fechaVencimientoCampoManual">Fecha de vencimiento</label>
+              <input type="text" id="fechaVencimientoCampoManual" readonly />
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="section-title">Resultado</p>
+          <div class="summary">
+            <div class="summary-line" id="modoTexto">Modo: -</div>
+            <div class="summary-line" id="codigoTexto">Código: -</div>
+            <div class="summary-line" id="productoTexto">Material: -</div>
+            <div class="summary-line" id="vidaUtilTexto">Vida útil: -</div>
+            <div class="summary-line" id="loteTexto">Lote: -</div>
+            <div class="summary-line" id="fabricacionTexto">Fecha de fabricación: -</div>
+            <div class="summary-line" id="responsableTexto">Responsable: -</div>
+            <div class="date-big" id="fechaVencimientoTexto">--/--/----</div>
+            <div class="summary-line" id="fechaLargaTexto">Completa los datos para calcular.</div>
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="section-title">Texto de rotulado</p>
+          <textarea id="textoRotulado" readonly></textarea>
+        </section>
+
+        <section class="section">
+          <p class="section-title">Vista rápida de etiqueta</p>
+          <div class="label-preview" id="labelPreview">
+            <div class="label-header">
+              <div class="label-brand">PULPAFRUIT</div>
+              <div class="label-tag">Rotulado interno</div>
+            </div>
+            <div class="label-name" id="labelNombre">Material pendiente</div>
+            <div class="label-grid">
+              <div class="label-cell">
+                <span class="label-k">Código</span>
+                <span class="label-v" id="labelCodigo">-</span>
+              </div>
+              <div class="label-cell">
+                <span class="label-k">Lote</span>
+                <span class="label-v" id="labelLote">-</span>
+              </div>
+              <div class="label-cell">
+                <span class="label-k">Fabricación</span>
+                <span class="label-v" id="labelFab">-</span>
+              </div>
+              <div class="label-cell">
+                <span class="label-k">Vencimiento</span>
+                <span class="label-v" id="labelVence">-</span>
+              </div>
+              <div class="label-cell">
+                <span class="label-k">Vida útil</span>
+                <span class="label-v" id="labelVida">-</span>
+              </div>
+              <div class="label-cell">
+                <span class="label-k">Responsable</span>
+                <span class="label-v" id="labelResponsable">-</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="buttons">
+          <button class="btn-light" id="restablecerBtn" type="button">Restablecer</button>
+          <button class="btn-secondary" id="copiarResultadoBtn" type="button">Copiar resultado</button>
+          <button class="btn-success" id="copiarRotuloBtn" type="button">Copiar rotulado</button>
+          <button class="btn-primary" id="descargarEtiquetaBtn" type="button">Descargar etiqueta PNG</button>
+        </div>
+
+        <div class="footer-note">
+          La suma por meses usa calendario real. Ejemplo: 31/01 + 1 mes = último día válido de febrero. La app usa hora fija local para evitar desplazamientos por zona horaria al calcular vencimientos.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="materiales.js"></script>
+  <script>
+    const materiales = window.MATERIALES || window.materiales || {};
+    const materialesKeys = Object.keys(materiales);
+    const materialesIndex = materialesKeys.map((codigo) => {
+      const item = materiales[codigo] || {};
+      return {
+        codigo,
+        nombre: item.nombre || '',
+        nombreBusqueda: (item.nombre || '').toUpperCase(),
+        vidaUtil: Number(item.vidaUtil || 0),
+        unidadVidaUtil: normalizarUnidad(item.unidadVidaUtil)
+      };
+    });
+
+    const badgeMateriales = document.getElementById('badgeMateriales');
+    const modoRegistro = document.getElementById('modoRegistro');
+    const responsableComun = document.getElementById('responsableComun');
+
+    const bloqueRegistrado = document.getElementById('bloqueRegistrado');
+    const bloqueManual = document.getElementById('bloqueManual');
+
+    const busquedaMaterial = document.getElementById('busquedaMaterial');
+    const searchResults = document.getElementById('searchResults');
+    const codigoMaterial = document.getElementById('codigoMaterial');
+    const fechaFabricacion = document.getElementById('fechaFabricacion');
+    const nombreMaterial = document.getElementById('nombreMaterial');
+    const vidaUtilRegistrada = document.getElementById('vidaUtilRegistrada');
+    const unidadInfo = document.getElementById('unidadInfo');
+    const loteGenerado = document.getElementById('loteGenerado');
+    const fechaVencimientoCampo = document.getElementById('fechaVencimientoCampo');
+    const estadoMaterial = document.getElementById('estadoMaterial');
+
+    const codigoManual = document.getElementById('codigoManual');
+    const fechaFabricacionManual = document.getElementById('fechaFabricacionManual');
+    const nombreManual = document.getElementById('nombreManual');
+    const vidaUtilManual = document.getElementById('vidaUtilManual');
+    const unidadVidaManual = document.getElementById('unidadVidaManual');
+    const loteGeneradoManual = document.getElementById('loteGeneradoManual');
+    const fechaVencimientoCampoManual = document.getElementById('fechaVencimientoCampoManual');
+
+    const modoTexto = document.getElementById('modoTexto');
+    const codigoTexto = document.getElementById('codigoTexto');
+    const productoTexto = document.getElementById('productoTexto');
+    const vidaUtilTexto = document.getElementById('vidaUtilTexto');
+    const loteTexto = document.getElementById('loteTexto');
+    const fabricacionTexto = document.getElementById('fabricacionTexto');
+    const responsableTexto = document.getElementById('responsableTexto');
+    const fechaVencimientoTexto = document.getElementById('fechaVencimientoTexto');
+    const fechaLargaTexto = document.getElementById('fechaLargaTexto');
+    const textoRotulado = document.getElementById('textoRotulado');
+
+    const labelNombre = document.getElementById('labelNombre');
+    const labelCodigo = document.getElementById('labelCodigo');
+    const labelLote = document.getElementById('labelLote');
+    const labelFab = document.getElementById('labelFab');
+    const labelVence = document.getElementById('labelVence');
+    const labelVida = document.getElementById('labelVida');
+    const labelResponsable = document.getElementById('labelResponsable');
+
+    const restablecerBtn = document.getElementById('restablecerBtn');
+    const copiarResultadoBtn = document.getElementById('copiarResultadoBtn');
+    const copiarRotuloBtn = document.getElementById('copiarRotuloBtn');
+    const descargarEtiquetaBtn = document.getElementById('descargarEtiquetaBtn');
+
+    const formatoVisible = new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const formatoLargo = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    function normalizarUnidad(valor) {
+      const texto = String(valor || 'dias').trim().toLowerCase();
+      if (texto === 'mes' || texto === 'meses' || texto === 'month' || texto === 'months') return 'meses';
+      return 'dias';
+    }
+
+    function limpiarCodigo(valor) {
+      return String(valor || '').trim().toUpperCase();
+    }
+
+    function textoVidaUtil(vidaUtil, unidad) {
+      if (!vidaUtil || vidaUtil <= 0) return '-';
+      const palabra = unidad === 'meses' ? (vidaUtil === 1 ? 'mes calendario' : 'meses calendario') : (vidaUtil === 1 ? 'día' : 'días');
+      return `${vidaUtil} ${palabra}`;
+    }
+
+    function formatoInputHoy() {
+      const hoy = new Date();
+      return [hoy.getFullYear(), String(hoy.getMonth() + 1).padStart(2, '0'), String(hoy.getDate()).padStart(2, '0')].join('-');
+    }
+
+    function parseFechaSegura(fechaStr) {
+      if (!fechaStr || !/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) return null;
+      const [a, m, d] = fechaStr.split('-').map(Number);
+      const fecha = new Date(a, m - 1, d, 12, 0, 0, 0);
+      if (fecha.getFullYear() !== a || fecha.getMonth() !== (m - 1) || fecha.getDate() !== d) return null;
+      return fecha;
+    }
+
+    function formatoMMDDYY(fechaStr) {
+      const fecha = parseFechaSegura(fechaStr);
+      if (!fecha) return '';
+      const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dd = String(fecha.getDate()).padStart(2, '0');
+      const yy = String(fecha.getFullYear()).slice(-2);
+      return `${mm}${dd}${yy}`;
+    }
+
+    function ultimoDiaDelMes(year, monthIndex) {
+      return new Date(year, monthIndex + 1, 0, 12, 0, 0, 0).getDate();
+    }
+
+    function sumarMesesCalendario(fecha, meses) {
+      const diaOriginal = fecha.getDate();
+      const mesObjetivo = fecha.getMonth() + Number(meses);
+      const yearObjetivo = fecha.getFullYear() + Math.floor(mesObjetivo / 12);
+      const monthNormalizado = ((mesObjetivo % 12) + 12) % 12;
+      const ultimoDia = ultimoDiaDelMes(yearObjetivo, monthNormalizado);
+      const diaFinal = Math.min(diaOriginal, ultimoDia);
+      return new Date(yearObjetivo, monthNormalizado, diaFinal, 12, 0, 0, 0);
+    }
+
+    function calcularFechaVencimiento(fechaFabricacionStr, vidaUtil, unidadVidaUtil) {
+      const base = parseFechaSegura(fechaFabricacionStr);
+      if (!base) return null;
+      const vida = Number(vidaUtil || 0);
+      if (!vida || vida <= 0) return null;
+      const unidad = normalizarUnidad(unidadVidaUtil);
+      if (unidad === 'meses') return sumarMesesCalendario(base, vida);
+      const fecha = new Date(base);
+      fecha.setDate(fecha.getDate() + vida);
+      return fecha;
+    }
+
+    function materialPorCodigo(codigo) {
+      return materiales[limpiarCodigo(codigo)] || null;
+    }
+
+    function actualizarVistaModo() {
+      const esManual = modoRegistro.value === 'manual';
+      bloqueRegistrado.classList.toggle('hidden', esManual);
+      bloqueManual.classList.toggle('hidden', !esManual);
+      cerrarResultados();
+    }
+
+    function abrirResultados() {
+      if (searchResults.children.length > 0) searchResults.classList.add('open');
+    }
+
+    function cerrarResultados() {
+      searchResults.classList.remove('open');
+    }
+
+    function renderResultadosBusqueda(items) {
+      searchResults.innerHTML = '';
+      if (!items.length) {
+        cerrarResultados();
+        return;
+      }
+      items.forEach((item) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'result-item';
+        btn.innerHTML = `<span class="result-code">${item.codigo}</span><span class="result-name">${item.nombre}</span>`;
+        btn.addEventListener('click', () => {
+          seleccionarMaterial(item.codigo, true);
+        });
+        searchResults.appendChild(btn);
+      });
+      abrirResultados();
+    }
+
+    function buscarSugerencias(texto) {
+      const query = String(texto || '').trim().toUpperCase();
+      if (query.length < 2) {
+        renderResultadosBusqueda([]);
+        return;
+      }
+      const exactCodigo = [];
+      const startsCodigo = [];
+      const startsNombre = [];
+      const contains = [];
+
+      for (const item of materialesIndex) {
+        if (item.codigo === query) {
+          exactCodigo.push(item);
+        } else if (item.codigo.startsWith(query)) {
+          startsCodigo.push(item);
+        } else if (item.nombreBusqueda.startsWith(query)) {
+          startsNombre.push(item);
+        } else if (item.nombreBusqueda.includes(query) || item.codigo.includes(query)) {
+          contains.push(item);
+        }
+        if ((exactCodigo.length + startsCodigo.length + startsNombre.length + contains.length) >= 24) {
+          if (exactCodigo.length >= 1 && startsCodigo.length + startsNombre.length + contains.length >= 23) break;
+        }
+      }
+
+      renderResultadosBusqueda([...exactCodigo, ...startsCodigo, ...startsNombre, ...contains].slice(0, 20));
+    }
+
+    function seleccionarMaterial(codigo, actualizarBusqueda = false) {
+      const limpio = limpiarCodigo(codigo);
+      codigoMaterial.value = limpio;
+      if (actualizarBusqueda) {
+        const material = materialPorCodigo(limpio);
+        busquedaMaterial.value = material ? `${limpio} - ${material.nombre}` : limpio;
+      }
+      cerrarResultados();
+      calcular();
+    }
+
+    function actualizarMaterialRegistrado() {
+      const codigo = limpiarCodigo(codigoMaterial.value);
+      codigoMaterial.value = codigo;
+      const material = materialPorCodigo(codigo);
+
+      if (material && material.nombre && Number(material.vidaUtil) > 0) {
+        nombreMaterial.value = material.nombre;
+        vidaUtilRegistrada.value = textoVidaUtil(Number(material.vidaUtil), material.unidadVidaUtil);
+        unidadInfo.value = material.unidadVidaUtil === 'meses' ? 'Meses calendario' : 'Días';
+        estadoMaterial.textContent = 'Código encontrado y listo para cálculo.';
+        estadoMaterial.className = 'status ok';
+      } else {
+        nombreMaterial.value = '';
+        vidaUtilRegistrada.value = '';
+        unidadInfo.value = '';
+        if (!codigo) {
+          estadoMaterial.textContent = 'Esperando búsqueda o código de material.';
+          estadoMaterial.className = 'status';
+        } else {
+          estadoMaterial.textContent = 'Código no encontrado o sin vida útil válida en la matriz.';
+          estadoMaterial.className = 'status error';
+        }
+      }
+      return material;
+    }
+
+    function construirTextoRotulado(datos) {
+      return [
+        `Modo: ${datos.modo}`,
+        `Código material: ${datos.codigo}`,
+        `Material: ${datos.nombre}`,
+        `Lote: ${datos.lote}`,
+        `Fecha de fabricación: ${datos.fabricacion}`,
+        `Vida útil: ${datos.vidaUtilTexto}`,
+        `Fecha de vencimiento: ${datos.vencimiento}`,
+        `Responsable: ${datos.responsable || '-'}`
+      ].join('\n');
+    }
+
+    function resetResultado() {
+      modoTexto.textContent = `Modo: ${modoRegistro.value === 'manual' ? 'Manual / ensayo' : 'Código registrado'}`;
+      codigoTexto.textContent = 'Código: -';
+      productoTexto.textContent = 'Material: -';
+      vidaUtilTexto.textContent = 'Vida útil: -';
+      loteTexto.textContent = 'Lote: -';
+      fabricacionTexto.textContent = 'Fecha de fabricación: -';
+      responsableTexto.textContent = `Responsable: ${responsableComun.value.trim() || '-'}`;
+      fechaVencimientoTexto.textContent = '--/--/----';
+      fechaLargaTexto.textContent = 'Completa los datos para calcular.';
+      textoRotulado.value = '';
+      labelNombre.textContent = 'Material pendiente';
+      labelCodigo.textContent = '-';
+      labelLote.textContent = '-';
+      labelFab.textContent = '-';
+      labelVence.textContent = '-';
+      labelVida.textContent = '-';
+      labelResponsable.textContent = responsableComun.value.trim() || '-';
+    }
+
+    function pintarResultado(datos) {
+      modoTexto.textContent = `Modo: ${datos.modo}`;
+      codigoTexto.textContent = `Código: ${datos.codigo}`;
+      productoTexto.textContent = `Material: ${datos.nombre}`;
+      vidaUtilTexto.textContent = `Vida útil: ${datos.vidaUtilTexto}`;
+      loteTexto.textContent = `Lote: ${datos.lote}`;
+      fabricacionTexto.textContent = `Fecha de fabricación: ${datos.fabricacion}`;
+      responsableTexto.textContent = `Responsable: ${datos.responsable || '-'}`;
+      fechaVencimientoTexto.textContent = datos.vencimiento;
+      fechaLargaTexto.textContent = `Vence el ${datos.vencimientoLargo}`;
+      textoRotulado.value = construirTextoRotulado(datos);
+
+      labelNombre.textContent = datos.nombre;
+      labelCodigo.textContent = datos.codigo;
+      labelLote.textContent = datos.lote;
+      labelFab.textContent = datos.fabricacion;
+      labelVence.textContent = datos.vencimiento;
+      labelVida.textContent = datos.vidaUtilTexto;
+      labelResponsable.textContent = datos.responsable || '-';
+    }
+
+    function calcularRegistrado() {
+      const material = actualizarMaterialRegistrado();
+      resetResultado();
+
+      const codigo = limpiarCodigo(codigoMaterial.value);
+      const fechaFabStr = fechaFabricacion.value;
+      const responsable = responsableComun.value.trim();
+
+      codigoTexto.textContent = `Código: ${codigo || '-'}`;
+      responsableTexto.textContent = `Responsable: ${responsable || '-'}`;
+      labelCodigo.textContent = codigo || '-';
+      labelResponsable.textContent = responsable || '-';
+
+      if (!material || !codigo || !fechaFabStr || !material.nombre || Number(material.vidaUtil) <= 0) {
+        loteGenerado.value = '';
+        fechaVencimientoCampo.value = '';
+        return;
+      }
+
+      const fechaFab = parseFechaSegura(fechaFabStr);
+      const fechaVen = calcularFechaVencimiento(fechaFabStr, material.vidaUtil, material.unidadVidaUtil);
+      if (!fechaFab || !fechaVen) {
+        loteGenerado.value = '';
+        fechaVencimientoCampo.value = '';
+        return;
+      }
+
+      const lote = `${codigo}${formatoMMDDYY(fechaFabStr)}`;
+      const visibleFab = formatoVisible.format(fechaFab);
+      const visibleVen = formatoVisible.format(fechaVen);
+
+      loteGenerado.value = lote;
+      fechaVencimientoCampo.value = visibleVen;
+
+      pintarResultado({
+        modo: 'Código registrado',
+        codigo,
+        nombre: material.nombre,
+        vidaUtilTexto: textoVidaUtil(Number(material.vidaUtil), material.unidadVidaUtil),
+        lote,
+        fabricacion: visibleFab,
+        responsable,
+        vencimiento: visibleVen,
+        vencimientoLargo: formatoLargo.format(fechaVen)
+      });
+    }
+
+    function calcularManual() {
+      resetResultado();
+
+      const codigo = limpiarCodigo(codigoManual.value);
+      codigoManual.value = codigo;
+      const nombre = nombreManual.value.trim();
+      const fechaFabStr = fechaFabricacionManual.value;
+      const vida = Number(vidaUtilManual.value || 0);
+      const unidad = normalizarUnidad(unidadVidaManual.value);
+      const responsable = responsableComun.value.trim();
+
+      codigoTexto.textContent = `Código: ${codigo || '-'}`;
+      productoTexto.textContent = `Material: ${nombre || '-'}`;
+      vidaUtilTexto.textContent = `Vida útil: ${vida > 0 ? textoVidaUtil(vida, unidad) : '-'}`;
+      responsableTexto.textContent = `Responsable: ${responsable || '-'}`;
+      labelCodigo.textContent = codigo || '-';
+      labelNombre.textContent = nombre || 'Material pendiente';
+      labelVida.textContent = vida > 0 ? textoVidaUtil(vida, unidad) : '-';
+      labelResponsable.textContent = responsable || '-';
+
+      if (!codigo || !nombre || !fechaFabStr || vida <= 0) {
+        loteGeneradoManual.value = '';
+        fechaVencimientoCampoManual.value = '';
+        return;
+      }
+
+      const fechaFab = parseFechaSegura(fechaFabStr);
+      const fechaVen = calcularFechaVencimiento(fechaFabStr, vida, unidad);
+      if (!fechaFab || !fechaVen) {
+        loteGeneradoManual.value = '';
+        fechaVencimientoCampoManual.value = '';
+        return;
+      }
+
+      const lote = `${codigo}${formatoMMDDYY(fechaFabStr)}`;
+      const visibleFab = formatoVisible.format(fechaFab);
+      const visibleVen = formatoVisible.format(fechaVen);
+
+      loteGeneradoManual.value = lote;
+      fechaVencimientoCampoManual.value = visibleVen;
+
+      pintarResultado({
+        modo: 'Manual / ensayo',
+        codigo,
+        nombre,
+        vidaUtilTexto: textoVidaUtil(vida, unidad),
+        lote,
+        fabricacion: visibleFab,
+        responsable,
+        vencimiento: visibleVen,
+        vencimientoLargo: formatoLargo.format(fechaVen)
+      });
+    }
+
+    function calcular() {
+      actualizarVistaModo();
+      if (modoRegistro.value === 'manual') {
+        calcularManual();
+      } else {
+        calcularRegistrado();
+      }
+    }
+
+    async function copiarTexto(texto, boton) {
+      if (!texto) return;
+      try {
+        await navigator.clipboard.writeText(texto);
+        const original = boton.textContent;
+        boton.textContent = 'Copiado';
+        setTimeout(() => { boton.textContent = original; }, 1400);
+      } catch (error) {
+        alert('No fue posible copiar automáticamente en este dispositivo.');
+      }
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 3) {
+      const words = String(text || '').split(/\s+/);
+      let line = '';
+      let lines = [];
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+          if (lines.length >= maxLines - 1) break;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      if (lines.length > maxLines) lines = lines.slice(0, maxLines);
+      lines = lines.map((entry, index) => index === maxLines - 1 && words.length > 1 && entry !== text ? `${entry}…` : entry);
+      lines.forEach((entry, index) => ctx.fillText(entry, x, y + index * lineHeight));
+    }
+
+    function obtenerDatosActuales() {
+      const esManual = modoRegistro.value === 'manual';
+      return {
+        modo: esManual ? 'Manual / ensayo' : 'Código registrado',
+        codigo: (esManual ? limpiarCodigo(codigoManual.value) : limpiarCodigo(codigoMaterial.value)) || '',
+        nombre: esManual ? nombreManual.value.trim() : nombreMaterial.value.trim(),
+        vida: esManual ? textoVidaUtil(Number(vidaUtilManual.value || 0), normalizarUnidad(unidadVidaManual.value)) : vidaUtilRegistrada.value,
+        lote: esManual ? loteGeneradoManual.value : loteGenerado.value,
+        fabricacion: fabricacionTexto.textContent.replace('Fecha de fabricación: ', ''),
+        vencimiento: fechaVencimientoTexto.textContent,
+        responsable: responsableComun.value.trim() || '-'
+      };
+    }
+
+    function descargarEtiqueta() {
+      const datos = obtenerDatosActuales();
+      if (!datos.codigo || !datos.nombre || !datos.lote || datos.vencimiento === '--/--/----') {
+        alert('Completa primero la información necesaria para generar la etiqueta.');
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 820;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(18, 18, canvas.width - 36, canvas.height - 36);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(40, 40, canvas.width - 80, 110);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 42px Arial';
+      ctx.fillText('PULPAFRUIT', 70, 96);
+      ctx.font = 'bold 22px Arial';
+      ctx.fillText('ROTULADO INTERNO', 70, 130);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 36px Arial';
+      wrapText(ctx, datos.nombre, 70, 205, canvas.width - 140, 42, 3);
+
+      const cards = [
+        { x: 70, y: 330, w: 500, h: 110, k: 'Código', v: datos.codigo },
+        { x: 620, y: 330, w: 510, h: 110, k: 'Lote', v: datos.lote },
+        { x: 70, y: 470, w: 500, h: 110, k: 'Fabricación', v: datos.fabricacion },
+        { x: 620, y: 470, w: 510, h: 110, k: 'Vencimiento', v: datos.vencimiento },
+        { x: 70, y: 610, w: 500, h: 110, k: 'Vida útil', v: datos.vida },
+        { x: 620, y: 610, w: 510, h: 110, k: 'Responsable', v: datos.responsable }
+      ];
+
+      cards.forEach((card) => {
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(card.x, card.y, card.w, card.h);
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(card.k.toUpperCase(), card.x + 20, card.y + 28);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 32px Arial';
+        wrapText(ctx, card.v, card.x + 20, card.y + 72, card.w - 40, 34, 2);
+      });
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '18px Arial';
+      ctx.fillText(`Modo: ${datos.modo}`, 70, 770);
+      ctx.fillText('Generado por herramienta interna de rotulado', 790, 770);
+
+      const link = document.createElement('a');
+      link.download = `${datos.lote || 'etiqueta'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function restablecer() {
+      modoRegistro.value = 'registrado';
+      responsableComun.value = '';
+      busquedaMaterial.value = '';
+      codigoMaterial.value = '';
+      fechaFabricacion.value = formatoInputHoy();
+      nombreMaterial.value = '';
+      vidaUtilRegistrada.value = '';
+      unidadInfo.value = '';
+      loteGenerado.value = '';
+      fechaVencimientoCampo.value = '';
+      estadoMaterial.textContent = 'Esperando búsqueda o código de material.';
+      estadoMaterial.className = 'status';
+
+      codigoManual.value = '';
+      fechaFabricacionManual.value = formatoInputHoy();
+      nombreManual.value = '';
+      vidaUtilManual.value = '';
+      unidadVidaManual.value = 'dias';
+      loteGeneradoManual.value = '';
+      fechaVencimientoCampoManual.value = '';
+
+      resetResultado();
+      actualizarVistaModo();
+      calcular();
+    }
+
+    busquedaMaterial.addEventListener('input', (event) => {
+      buscarSugerencias(event.target.value);
+    });
+    busquedaMaterial.addEventListener('focus', () => {
+      buscarSugerencias(busquedaMaterial.value);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.search-wrap')) cerrarResultados();
+    });
+
+    modoRegistro.addEventListener('change', calcular);
+    responsableComun.addEventListener('input', calcular);
+
+    codigoMaterial.addEventListener('input', () => {
+      if (busquedaMaterial.value && !busquedaMaterial.value.startsWith(codigoMaterial.value)) {
+        busquedaMaterial.value = codigoMaterial.value;
+      }
+      calcular();
+    });
+    fechaFabricacion.addEventListener('change', calcular);
+
+    codigoManual.addEventListener('input', calcular);
+    fechaFabricacionManual.addEventListener('change', calcular);
+    nombreManual.addEventListener('input', calcular);
+    vidaUtilManual.addEventListener('input', calcular);
+    unidadVidaManual.addEventListener('change', calcular);
+
+    copiarResultadoBtn.addEventListener('click', () => {
+      const texto = [modoTexto.textContent, codigoTexto.textContent, productoTexto.textContent, loteTexto.textContent, `FV: ${fechaVencimientoTexto.textContent}`].join(' | ');
+      copiarTexto(texto, copiarResultadoBtn);
+    });
+    copiarRotuloBtn.addEventListener('click', () => copiarTexto(textoRotulado.value, copiarRotuloBtn));
+    descargarEtiquetaBtn.addEventListener('click', descargarEtiqueta);
+    restablecerBtn.addEventListener('click', restablecer);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+
+    badgeMateriales.textContent = `Base: ${materialesKeys.length.toLocaleString('es-CO')} materiales`;
+    restablecer();
+  </script>
+</body>
+</html>
